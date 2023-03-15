@@ -1,28 +1,44 @@
 from tkinter import *
+from inspect_sheet_open import isSheetOpen
 
-win = Tk()
-win.resizable(False, False)
+from env import file_name
 
-condition = dict(
+condition: dict = dict(
     title="Banco de horas",
     btn="Carregando...",
     icon="clock.ico",
     work=False
 )
 
+win = Tk()
+win.resizable(False, False)
 win.iconbitmap(condition["icon"])
 
 def working():
-    win.title("Trabalhando...")
-    win.iconbitmap("yes.ico")
-    button["text"] = "Check-out"
+    global condition
+    condition = dict(
+        title="Trabalhando...",
+        icon="yes.ico",
+        btn="Check-out",
+        work=True
+    )
+    updateInfo()
 
 
 def pause():
-    win.title("Pausa")
-    win.iconbitmap("not.ico")
-    button["text"] = "Check-in"
+    global condition
+    condition = dict(
+        title="Pausa",
+        icon="not.ico",
+        btn="Check-in",
+        work=False
+    )
+    updateInfo()
 
+def updateInfo():
+    button["text"] = condition["btn"]
+    win.title(condition["title"])
+    win.iconbitmap(condition["icon"])
 
 
 def status():
@@ -44,5 +60,21 @@ text.grid(column=0, row=1)
 title = Label(win, text="Banco de horas")
 title.grid(column=0, row=0, pady=20, padx=20)
 
+def messageErrorSheetOpen():
+    # preciso executar antes de fazer as verificações os check-ins
+    # Estou pensando em alterar o botão aqui
+    from tkinter.messagebox import showerror
+    if isSheetOpen():
+        showerror(
+            title=f"Erro: O arquivo está aberto",
+            message=f"Feche o arquivo {file_name} para continuar"
+        )
+        button["command"] = messageErrorSheetOpen
+        button["text"] = "Tentar novamente"
+    else:
+        button["command"] = status
+        button["text"] = condition["btn"]
+
+messageErrorSheetOpen()
 
 win.mainloop()

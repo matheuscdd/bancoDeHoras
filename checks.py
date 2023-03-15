@@ -1,18 +1,20 @@
 from datetime import datetime, date
 from calc_hours import calcHours
+from env import file_name
+
 
 
 def openSheet(choice):
     from openpyxl import load_workbook
-    sheet = load_workbook("register.xlsx")
+    sheet = load_workbook(file_name)
     tab = sheet.active
     hour = datetime.now().strftime("%H:%M:%S")
     num = len(tab["A"]) + 1
-    if choice == "checkIn":
+    if choice == "check-in":
         checkIn(tab, num, hour)
     else:
         checkOut(tab, num, hour)
-    sheet.save("register.xlsx")
+    sheet.save(file_name)
     sheet.close()
 
 def registerDay(tab, num):
@@ -36,6 +38,7 @@ def checkOut(tab, num, hour):
 
 
 # arrumar um jeito de fazer a soma do total de horas sem dar conflito
-# openSheet("checkOut")
+# openSheet("check-out")
+# openSheet("check-in")
 
 
