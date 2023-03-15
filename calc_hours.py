@@ -41,22 +41,28 @@ def calcDayHours():
         return "00:00:00"
 
 
-calcHours()
+def convertHours(sometime):
+    hours = int(sometime.total_seconds() // 3600)
+    minutes = str(sometime - timedelta(hours=hours))[10:15] or "00:00"
+    result = ("+" if hours >= 0 else "") + f"{hours}:{minutes}"
+    return result
 def differenceHoursWeek():
     week_hours = calcWeekHours(all_weeks=True)
     week_count = len(week_hours)
     tot_hours = week_hours.sum()
-
-    # print(result)
+    result = convertHours(tot_hours)
+    print(result)
     needed_hours = timedelta(hours=need_week_hours) * week_count
-    print(needed_hours)
+    print(convertHours(needed_hours))
+    conta = tot_hours - needed_hours
+    print(convertHours(conta))
 
 
 differenceHoursWeek()
 
-def convertHours(timedate):
-    hours = int(timedate.total_seconds() // 3600)
-    minutes = str(timedate - timedelta(hours=hours))[10:15]
-    result = f"{hours}:{minutes}"
-    print(result)
-    return result
+
+
+
+
+
+
