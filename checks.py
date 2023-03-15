@@ -1,7 +1,5 @@
 from datetime import datetime, date
-from calc_hours import calcHours
 from env import file_name
-
 
 
 def openSheet(choice):
@@ -17,28 +15,26 @@ def openSheet(choice):
     sheet.save(file_name)
     sheet.close()
 
-def registerDay(tab, num):
+def registerDay(tab: any, num: int):
     today = date.today()
     currDay = f'A{num}'
     tab[currDay] = today
     tab[currDay].number_format = "dd/mm/yyyy"
 
 
-def checkIn(tab, num, hour):
+def checkIn(tab: any, num: int, hour: str):
     registerDay(tab, num)
     currCheckIn = f'B{num}'
     tab[currCheckIn] = hour
     tab[currCheckIn].number_format = "hh:mm:ss"
 
 
-def checkOut(tab, num, hour):
+def checkOut(tab: any, num: int, hour: str):
     currCheckOut = f'C{num - 1}'
     tab[currCheckOut] = hour
     tab[currCheckOut].number_format = "hh:mm:ss"
 
 
-# arrumar um jeito de fazer a soma do total de horas sem dar conflito
-# openSheet("check-out")
-# openSheet("check-in")
+
 
 
