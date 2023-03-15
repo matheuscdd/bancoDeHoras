@@ -1,15 +1,16 @@
-import pandas as pd
-from datetime import datetime as dt, time, timedelta
-import datetime
-df = pd.read_excel("register.xlsx")
+import tkinter as tk
 
-df["check-out"] = pd.to_datetime(df["check-out"], format="%H:%M:%S").dt.time
-df["check-in"] = pd.to_datetime(df["check-in"], format="%H:%M:%S").dt.time
+# Create a new root window using the Tk class
+root = tk.Tk()
+root.wm_attributes("-topmost",1)
+# Set the title of the root window
+root.title("Main Window")
 
-df["work_hours"] = df.apply(lambda x: dt.combine(dt.min, x["check-out"]) - dt.combine(dt.min, x["check-in"]), axis=1)
+# Create a new toplevel window
+toplevel = tk.Toplevel(root)
 
-# result = str(df["work_hours"][0])[7:15]
-df["work_hours"] = df["work_hours"].apply(lambda x: str(x)[7:15])
-# df["work_hours"] = df["work_hours"].astype("datetime64")
-# print(result)
-df.to_excel("result.xlsx", index=False)
+# Set the title of the toplevel window
+toplevel.title("Toplevel Window")
+
+# Run the main event loop
+root.mainloop()
