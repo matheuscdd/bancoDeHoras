@@ -13,3 +13,15 @@ def isWork():
     except:
         result = len(df["check-out"]) == len(df["check-in"])
         return not result
+
+
+def ensureSheetExists():
+    from os.path import isfile
+    import pandas as pd
+    exists = isfile(file_name)
+    if not exists:
+        temp = {"data": ["2023-03-27"], "check-in": ["00:00:00"], "check-out":	["00:00:00"], "work_hours": ["00:00:09"], "week": [13]}
+        df = pd.DataFrame(temp)
+        df = df.drop(index=df.index)
+        df.to_excel(file_name, index=False)
+
