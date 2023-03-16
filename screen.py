@@ -1,11 +1,12 @@
 from tkinter import *
-from calc_hours import calcHours
+from calc_hours import calcHours, calcDayHours, convertHours, differenceHoursWeek
 from inspect_open_apps import isSheetOpen, isAppAlreadyOpen
 from types_project import Condition
-from env import file_name
+from env import file_name, need_week_hours
 from checks import openSheet
 from verify import isWork
 from tkinter.messagebox import showerror
+
 
 if isAppAlreadyOpen():
     showerror(
@@ -31,11 +32,11 @@ else:
 
     condition = conditionWork.copy() if isWork() else conditionNotWork.copy()
 
-    win = Tk()
-    win.wm_attributes("-topmost", 1) # Depois preciso tirar essa parte
-    win.resizable(False, False)
-    win.iconbitmap(condition["icon"])
-    win.title(condition["title"])
+    app = Tk()
+    app.wm_attributes("-topmost", 1) # Depois preciso tirar essa parte
+    app.resizable(False, False)
+    app.iconbitmap(condition["icon"])
+    app.title(condition["title"])
 
 
     def working():
@@ -51,18 +52,19 @@ else:
         condition = conditionNotWork.copy()
         updateInfo()
         calcHours()
+        report()
 
 
     def updateInfo():
         global img, render
-        win.title(condition["title"])
-        win.iconbitmap(condition["icon"])
+        app.title(condition["title"])
+        app.iconbitmap(condition["icon"])
         button["text"] = condition["btn"]
         render = PhotoImage(file=condition["img"])
-        img = Label(win, image=render)
+        img = Label(app, image=render, padx=20, pady=20)
         img.image = render
         img.grid(column=0, row=5)
-        win.update_idletasks()
+        app.update_idletasks()
 
 
     def status():
@@ -72,28 +74,64 @@ else:
         working() if condition["work"] else pause()
 
 
-    title = Label(win, text=condition["title"])
-    title.grid(column=0, row=0, pady=20, padx=20)
-    button = Button(win, text=condition["btn"], command=status)
-    button.grid(column=0, row=2, padx=10, pady=10)
+    button = Button(app, text=condition["btn"], command=status)
+    button.grid(column=0, row=2, padx=10, pady=20)
 
-    text = Text(win, height=4, width=30, font="Calibri 10", padx=10, pady=10)
-    text.insert(INSERT, "oLÁ \n")
-    text.insert(END, "Acabou")
+    text = Text(app, height=4, width=30, font=("Calibri", 10), padx=10, pady=10)
     text.grid(column=0, row=1)
+    text.config(state=DISABLED)
 
-    title = Label(win, text="Banco de horas")
+
+    def insertText(txt: str, color: str = "black"):
+        text.config(state=NORMAL)
+        text.insert(INSERT, txt+"\n")
+        lines = len(text.get("1.0", END).splitlines())
+        text.tag_configure(color, foreground=color)
+        text.tag_add(color, f"{lines - 1}.0", END)
+        text.config(state=DISABLED)
+
+
+    def clean_text():
+        text.config(state=NORMAL)
+        text.delete("1.0", END)
+        text.config(state=DISABLED)
+
+    def report():
+        from datetime import timedelta
+        clean_text()
+        insertText(
+            f"Hoje trabalhei: {calcDayHours()}", "#3872A2"
+        )
+        try:
+            result = differenceHoursWeek()
+            insertText(
+                f"Balanço semanal: {result}", "#43C553" if result[0] in "+" else "#D44C3D"
+            )
+        except:
+            insertText(
+                f"Balanço semanal: {convertHours(timedelta(hours=need_week_hours))}"
+            )
+
+
+    report()
+
+
+
+    title = Label(app, text="Banco de horas", font="Calibri 14")
     title.grid(column=0, row=0, pady=20, padx=20)
 
     render = PhotoImage(file=condition["img"])
-    img = Label(win, image=render)
+    img = Label(app, image=render, pady=40, padx=20)
     img.image = render
     img.grid(column=0, row=5)
 
+    fragment = Label(app, text="")
+    fragment.grid(column=0, row=6)
 
     def messageErrorSheetOpen():
-        # preciso executar antes de fazer as verificações os check-ins
         if isSheetOpen():
+            condition["img"] = "lost.png"
+            updateInfo()
             showerror(
                 title="Planilha já em uso",
                 message=f"Feche o arquivo {file_name} para continuar"
@@ -102,9 +140,10 @@ else:
             button["text"] = "Tentar novamente"
             return True
         else:
+            condition["img"] = "sad.png" if condition["work"] else "happy.png"
+            updateInfo()
             button["command"] = status
-            button["text"] = condition["btn"]
             return False
 
 
-    win.mainloop()
+    app.mainloop()
